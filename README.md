@@ -33,46 +33,46 @@ algo   | Add()    | Cancel() | Tick()   | implement
 
 
 ```
-AMD 1700 3.0GHz Ubu16.04 GCC 9.3
+AMD 1700 3.0GHz Ubu18.04 GCC 9.3 -O3
 ============================================================================
-PQTimerAdd                                                  25.01ms    39.98
-TreeTimerAdd                                      80.41%    31.11ms    32.15
-HashTimerAdd                                     126.50%    19.77ms    50.58
-WheelTimerAdd                                    645.99%     3.87ms   258.28
-WheelTimer2Add                                    1.55K%     1.61ms   621.35
+PQTimerAdd                                                  52.88ms    18.91
+TreeTimerAdd                                      74.47%    71.00ms    14.08
+HashTimerAdd                                     128.25%    41.23ms    24.25
+WheelTimerAdd                                    567.86%     9.31ms   107.40
+WheelTimer2Add                                    1.26K%     4.18ms   239.07
 ----------------------------------------------------------------------------
-PQTimerDel                                                   4.85ms   206.04
-TreeTimerDel                                     38.86m%     12.49s   80.07m
-WheelTimerDel                                    238.37%     2.04ms   491.14
-WheelTimer2Del                                   315.01%     1.54ms   649.06
-HashTimerDel                                     316.72%     1.53ms   652.57
+PQTimerDel                                                  14.79ms    67.59
+TreeTimerDel                                     19.23m%    1.28min   13.00m
+HashTimerDel                                     387.48%     3.82ms   261.91
+WheelTimerDel                                    219.33%     6.75ms   148.25
+WheelTimer2Del                                   450.62%     3.28ms   304.59
 ----------------------------------------------------------------------------
-PQTimerTick                                                 18.00ms    55.54
-TreeTimerTick                                     89.33%    20.15ms    49.62
-WheelTimerTick                                    94.94%    18.96ms    52.73
-WheelTimer2Tick                                  102.62%    17.54ms    57.00
+PQTimerTick                                                 37.56ms    26.63
+TreeTimerTick                                     85.84%    43.75ms    22.85
+WheelTimerTick                                    87.77%    42.79ms    23.37
+WheelTimer2Tick                                   98.82%    38.01ms    26.31
 ============================================================================
-
-
-
 ```
 
 ```
-i5 3.4GHz Windows 10 Visual C++ 15
+i5 3.4GHz Windows 10 Visual C++ 19 /O2
 ============================================================================
-test\benchtimer.cpp                             relative  time/iter  iters/s
-============================================================================
-PQTimerAdd                                                  12.27ms    81.51
-TreeTimerAdd                                      54.89%    22.35ms    44.74
-WheelTimerAdd                                     70.70%    17.35ms    57.63
+PQTimerAdd                                                  23.12ms    43.25
+TreeTimerAdd                                      61.32%    37.71ms    26.52
+HashTimerAdd                                     208.95%    11.07ms    90.37
+WheelTimerAdd                                     87.27%    26.49ms    37.74
+WheelTimer2Add                                   215.08%    10.75ms    93.02
 ----------------------------------------------------------------------------
-PQTimerDel                                                 706.29ms     1.42
-TreeTimerDel                                       5.12%     13.81s   72.43m
-WheelTimerDel                                     8.07K%     8.75ms   114.23
+PQTimerDel                                                  18.63ms    53.67
+TreeTimerDel                                     39.71m%     46.92s   21.31m
+HashTimerDel                                     249.00%     7.48ms   133.64
+WheelTimerDel                                    137.52%    13.55ms    73.81
+WheelTimer2Del                                   369.01%     5.05ms   198.05
 ----------------------------------------------------------------------------
-PQTimerTick                                                  1.37ms   728.89
-TreeTimerTick                                     38.55%     3.56ms   280.97
-WheelTimerTick                                    30.36%     4.52ms   221.31
+PQTimerTick                                                  2.27ms   440.33
+TreeTimerTick                                     17.37%    13.08ms    76.47
+WheelTimerTick                                    22.32%    10.17ms    98.29
+WheelTimer2Tick                                   84.54%     2.69ms   372.25
 ============================================================================
 ```
 

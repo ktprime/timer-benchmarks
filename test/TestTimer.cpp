@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #include <chrono>
@@ -15,7 +15,7 @@
 #include "Clock.h"
 #include "Benchmark.h"
 
-const int N1 = 1000;
+const int N1 = 10000;
 const int N2 = 10;
 const int TRY = 2;
 const int TIME_DELTA = 10;
@@ -39,7 +39,7 @@ static void TestTimerAdd(TimerQueueBase* timer, int count)
     {
         timer->Schedule(0, callback);
     }
-    
+
     // to make sure timing-wheel trigger all timers at next time unit
     std::this_thread::sleep_for(std::chrono::milliseconds(TIME_UNIT));
 
@@ -96,7 +96,7 @@ static void TestTimerExpire(TimerQueueBase* timer, int count)
     }
 
     EXPECT_EQ(timer->Size(), 0);
-    
+
     std::vector<int> interval_tolerance;
     interval_tolerance.reserve(count);
 

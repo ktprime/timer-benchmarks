@@ -9,7 +9,7 @@
 
 enum
 {
-    TIME_UNIT = int64_t(10),       // centisecond, i.e. 1/100 second
+    TIME_UNIT = int64_t(1),       // centisecond, i.e. 1/100 second
 };
 
 class Clock

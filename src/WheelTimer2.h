@@ -26,25 +26,20 @@
 
 #ifndef WHEEL_BUCKETS
 #define WHEEL_BUCKETS 2
-
 enum TIME_WHEEL
 {
-
     TVN_BITS = 6,                   // time vector level shift bits
     TVR_BITS = 8,                  // timer vector shift bits
     TVN_SIZE = (1 << TVN_BITS),     // wheel slots of level vector
     TVR_SIZE = (1 << TVR_BITS),     // wheel slots of vector
     TVN_MASK = (TVN_SIZE - 1),      //
     TVR_MASK = (TVR_SIZE - 1),      //
-
-    ALL_BITS  = TVR_BITS + WHEEL_BUCKETS * TVN_BITS,
-    MAX_TVAL  = (uint64_t)((1ULL << ALL_BITS) - 1),
-
     TIME_INDEX1 = 1 << (TVR_BITS + 1 * TVN_BITS),
     TIME_INDEX2 = 1 << (TVR_BITS + 2 * TVN_BITS),
     TIME_INDEX3 = 1 << (TVR_BITS + 3 * TVN_BITS),
 
-
+    ALL_BITS  = TVR_BITS + WHEEL_BUCKETS * TVN_BITS,
+    MAX_TVAL  = (uint64_t)((1ULL << ALL_BITS) - 1),
     MAX_SECOS = (uint32_t)(MAX_TVAL / (1000 / 1)),
     MAX_MINUS = (uint32_t)(MAX_SECOS / 60),
     MAX_HOURS = (uint32_t)(MAX_SECOS / 3600),

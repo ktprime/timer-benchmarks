@@ -15,11 +15,11 @@ int main(int argc, char* argv[])
     testing::InitGoogleTest(&argc, argv);
     RUN_ALL_TESTS();
 
-#ifdef NDEBUG
+//#ifdef NDEBUG
     cout << "\nPATIENCE, BENCHMARKS IN PROGRESS." << endl;
     runBenchmarks();
     cout << "MEASUREMENTS DONE." << endl;
-#endif 
+//#endif
 
     return 0;
 }

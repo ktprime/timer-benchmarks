@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #include "Benchmark.h"
@@ -12,15 +12,15 @@
 #include "Clock.h"
 
 
-const int MaxN = 50000;   // max node count
+const int MaxN = 100'005;   // max node count
 
-// Add timer with random duration 
+// Add timer with random duration
 inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
 {
     std::vector<int> durations;
     for (int i = 0; i < n; i++)
     {
-        durations.push_back(i);
+        durations.push_back(i + rand() % 4);
     }
     std::random_shuffle(durations.begin(), durations.end());
     auto dummy = []() {};
@@ -48,6 +48,7 @@ inline void benchTick(TimerQueueBase* timer, int n)
         timer->Update();
     }
 }
+
 
 BENCHMARK(PQTimerAdd , n)
 {
@@ -126,7 +127,6 @@ BENCHMARK_RELATIVE(WheelTimer2Add, n)
 
 BENCHMARK_DRAW_LINE()
 
-
 BENCHMARK(PQTimerDel, n)
 {
     PQTimer timer;
@@ -146,6 +146,22 @@ BENCHMARK(PQTimerDel, n)
 BENCHMARK_RELATIVE(TreeTimerDel, n)
 {
     TreeTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchCancel(&timer, ids);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(HashTimerDel, n)
+{
+    HashTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -191,25 +207,7 @@ BENCHMARK_RELATIVE(WheelTimer2Del, n)
     doNotOptimizeAway(timer);
 }
 
-BENCHMARK_RELATIVE(HashTimerDel, n)
-{
-    HashTimer timer;
-    std::vector<int> ids;
-
-    BENCHMARK_SUSPEND
-    {
-        ids.reserve(MaxN);
-        fillTimer(&timer, ids, MaxN);
-    }
-
-    benchCancel(&timer, ids);
-
-    doNotOptimizeAway(timer);
-}
-
-
 BENCHMARK_DRAW_LINE()
-
 
 BENCHMARK(PQTimerTick, n)
 {
