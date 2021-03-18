@@ -8,6 +8,17 @@
 #include <functional>
 #include <unordered_map>
 
+
+#if 0
+    #include "robin_hood.h"
+    #define HASH_MAP robin_hood::unordered_map
+#elif 1
+    #include "hash_table5.hpp"
+    #define HASH_MAP emhash5::HashMap
+#else
+   #define HASH_MAP std::unordered_map
+#endif
+
 // callback on timed-out
 typedef std::function<void()> TimerCallback;
 

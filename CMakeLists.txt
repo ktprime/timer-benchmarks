@@ -9,6 +9,24 @@ include_directories(
     src
 )
 
+
+if (CMAKE_BUILD_TYPE)
+else()
+    set(CMAKE_BUILD_TYPE RELEASE)
+endif()
+
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -flto -fwhole-program -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS_RELEASE   "-DNDEBUG -O3 ${CMAKE_C_FLAGS}")
+
+message("------------ Options -------------")
+message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message("  CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("  CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR} ")
+message("  CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+message("  CMAKE_COMMAND: ${CMAKE_COMMAND}")
+message("  CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+
 if (WIN32)
     add_definitions(
         -DNOMINMAX

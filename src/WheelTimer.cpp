@@ -12,7 +12,7 @@
 WheelTimer::WheelTimer()
     : current_(Clock::CurrentTimeUnits())
 {
-    ref_.rehash(64);            // reserve a little space
+    ref_.reserve(64);            // reserve a little space
     free_list_.reserve(FREE_LIST_CAPACITY);
     //printf("wheel start at %lld\n", current_);
 }
