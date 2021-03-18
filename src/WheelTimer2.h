@@ -1,11 +1,12 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #pragma once
 
 #include "TimerQueueBase.h"
 #include <vector>
+#include <list>
 #include <unordered_map>
 
 // timer queue implemented with hashed hierarchical wheel.
@@ -23,7 +24,9 @@
 //       O(1)       O(1)          O(1)
 //
 
+#ifndef WHEEL_BUCKETS
 #define WHEEL_BUCKETS 2
+
 enum TIME_WHEEL
 {
 
@@ -46,25 +49,38 @@ enum TIME_WHEEL
     MAX_MINUS = (uint32_t)(MAX_SECOS / 60),
     MAX_HOURS = (uint32_t)(MAX_SECOS / 3600),
 };
+#endif
 
-class WheelTimer : public TimerQueueBase
+#if __cplusplus > 201702
+static_assert(MAX_HOURS > 1 && MAX_HOURS < 24);//one hour - one day
+static_assert(WHEEL_BUCKETS > 2 && WHEEL_BUCKETS <= 4);//one hour - one day
+#endif
+
+class WheelTimer2 : public TimerQueueBase
 {
 public:
+    static constexpr int INVALID_NODE_TIMERID = -1;
+    static constexpr int INVALID_NODE_SLOTID  = -2;
+    static constexpr int FREE_LIST_CAPACITY   = 1024;
+    static constexpr int ALLOC_SIZE           = 1024;
+
     struct TimerNode
     {
-        bool canceled = false;  // do lazy cancellation
-        int id = -1;
-        int64_t expire = -1;     // jiffies
+        int64_t id;         // timer id
+        int64_t expire;     // jiffies
+        //int     slot;       // near index
         TimerCallback cb;
     };
 
+#if 1
     typedef std::vector<TimerNode*> TimerList;
-
-    const int FREE_LIST_CAPACITY = 1024;
+#else
+    typedef std::list<TimerNode*> TimerList;
+#endif
 
 public:
-    WheelTimer();
-    ~WheelTimer();
+    WheelTimer2();
+    ~WheelTimer2();
 
     int Schedule(uint32_t time_units, TimerCallback cb) override;
 
@@ -72,27 +88,28 @@ public:
 
     int Update(int64_t now = 0) override;
 
-    int Size() const override 
-    { 
-        return size_; 
+    int Size() const override
+    {
+        return ref_.size();
     }
 
 private:
     int tick();
     void addTimerNode(TimerNode* node);
     int execute();
-    bool cascade(int bucket, int index);
-    void clearList(TimerList& list);
+    bool cascade(int bucket);
+
     void clearAll();
     TimerNode* allocNode();
-    void freeNode(TimerNode*);
+    void freeNode(TimerNode* node);
+    void freeList(TimerList& list);
 
 private:
-    int size_ = 0;
-    int64_t current_ = 0;
     int64_t jiffies_ = 0;
+    HASH_MAP<int, TimerNode* > ref_;
+    int alloc_size_  = 0;
+    TimerList free_list_;
     TimerList near_[TVR_SIZE];
     TimerList buckets_[WHEEL_BUCKETS][TVN_SIZE];
-    HASH_MAP<int, TimerNode*> ref_;       // make O(1) searching
-    std::vector<TimerNode*>   free_list_;
+    TimerList alloc_list_;
 };

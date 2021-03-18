@@ -59,6 +59,6 @@ endmacro(SOURCE_GROUP_BY_DIR)
 SOURCE_GROUP_BY_DIR(LIB_HEADER_FILES)
 SOURCE_GROUP_BY_DIR(LIB_SOURCE_FILES)
 
-add_library(libtimers ${LIB_HEADER_FILES} ${LIB_SOURCE_FILES})
+add_library(timers ${LIB_HEADER_FILES} ${LIB_SOURCE_FILES})
 
 add_subdirectory(test)

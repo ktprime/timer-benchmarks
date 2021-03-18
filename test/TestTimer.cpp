@@ -9,7 +9,9 @@
 #include <gtest/gtest.h>
 #include "PQTimer.h"
 #include "TreeTimer.h"
+#include "HashTimer.h"
 #include "WheelTimer.h"
+#include "WheelTimer2.h"
 #include "Clock.h"
 #include "Benchmark.h"
 
@@ -86,7 +88,7 @@ static void TestTimerExpire(TimerQueueBase* timer, int count)
     EXPECT_EQ(timer->Size(), count);
 
     // execute all timers
-    printf("start execute timer at %lld\n", Clock::CurrentTimeUnits());
+    printf("start execute timer at %ld\n", Clock::CurrentTimeUnits());
     int fired = 0;
     while (fired < count)
     {
@@ -144,6 +146,25 @@ TEST(TimerQueue, WheelTimerAdd)
     }
 }
 
+TEST(TimerQueue, WheelTimer2Add)
+{
+    WheelTimer2 timer;
+    for (int i = 0; i < TRY; i++)
+    {
+        TestTimerAdd(&timer, N1);
+    }
+}
+
+
+TEST(TimerQueue, HashTimerAdd)
+{
+    HashTimer timer;
+    for (int i = 0; i < TRY; i++)
+    {
+        TestTimerAdd(&timer, N1);
+    }
+}
+
 TEST(TimerQueue, MinHeapTimerExecute)
 {
     PQTimer timer;
@@ -161,3 +182,17 @@ TEST(TimerQueue, WheelTimerExecute)
     WheelTimer timer;
     TestTimerExpire(&timer, N2);
 }
+
+TEST(TimerQueue, WheelTimer2Execute)
+{
+    WheelTimer2 timer;
+    TestTimerExpire(&timer, N2);
+}
+
+
+TEST(TimerQueue, HashTimerExecute)
+{
+    HashTimer timer;
+    TestTimerExpire(&timer, N2);
+}
+

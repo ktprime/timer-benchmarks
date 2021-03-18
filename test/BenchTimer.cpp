@@ -7,6 +7,8 @@
 #include "PQTimer.h"
 #include "TreeTimer.h"
 #include "WheelTimer.h"
+#include "WheelTimer2.h"
+#include "HashTimer.h"
 #include "Clock.h"
 
 
@@ -77,9 +79,39 @@ BENCHMARK_RELATIVE(TreeTimerAdd, n)
     doNotOptimizeAway(timer);
 }
 
+BENCHMARK_RELATIVE(HashTimerAdd, n)
+{
+    HashTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+    }
+
+    fillTimer(&timer, ids, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
 BENCHMARK_RELATIVE(WheelTimerAdd, n)
 {
     WheelTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+    }
+
+    fillTimer(&timer, ids, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(WheelTimer2Add, n)
+{
+    WheelTimer2 timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -143,6 +175,39 @@ BENCHMARK_RELATIVE(WheelTimerDel, n)
     doNotOptimizeAway(timer);
 }
 
+BENCHMARK_RELATIVE(WheelTimer2Del, n)
+{
+    WheelTimer2 timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchCancel(&timer, ids);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(HashTimerDel, n)
+{
+    HashTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchCancel(&timer, ids);
+
+    doNotOptimizeAway(timer);
+}
+
+
 BENCHMARK_DRAW_LINE()
 
 
@@ -181,6 +246,22 @@ BENCHMARK_RELATIVE(TreeTimerTick, n)
 BENCHMARK_RELATIVE(WheelTimerTick, n)
 {
     WheelTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchTick(&timer, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(WheelTimer2Tick, n)
+{
+    WheelTimer2 timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND

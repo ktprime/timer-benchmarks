@@ -159,6 +159,9 @@ bool WheelTimer::Cancel(int id)
 bool WheelTimer::cascade(int bucket, int index)
 {
     // swap list
+    if (bucket >= WHEEL_BUCKETS)
+        return false;
+
     TimerList list;
     buckets_[bucket][index].swap(list);
 

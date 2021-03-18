@@ -44,5 +44,5 @@ private:
 
 private:
     std::vector<TimerNode*>  heap_;
-    std::unordered_map<int, TimerNode*> ref_;
+    HASH_MAP<int, TimerNode* > ref_;
 };
