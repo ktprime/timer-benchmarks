@@ -146,9 +146,9 @@ void addBenchmarkWithTimes(const char* file, const char* name, Lambda&& lambda)
 }
 
 template <typename Lambda>
-void addBenchmark(const char* file, const char* name, Lambda&& lambda) 
+void addBenchmark(const char* file, const char* name, Lambda&& lambda)
 {
-    addBenchmarkWithTimes(file, name, [=](unsigned int times) 
+    addBenchmarkWithTimes(file, name, [=](unsigned int times)
     {
         unsigned int niter = 0;
         while (times-- > 0) {
@@ -273,10 +273,10 @@ auto makeUnpredictable(T& datum) -> typename std::enable_if<
   static unsigned funName(paramType paramName)
 
 /**
- * Introduces a benchmark function. Use with two arguments. The first 
- * is the name of the benchmark. Use something descriptive, such as 
- * insertVectorBegin. The second argument may be missing, or could be 
- * a symbolic counter. The counter dictates how many internal iteration 
+ * Introduces a benchmark function. Use with two arguments. The first
+ * is the name of the benchmark. Use something descriptive, such as
+ * insertVectorBegin. The second argument may be missing, or could be
+ * a symbolic counter. The counter dictates how many internal iteration
  * the benchmark does. Example:
  *
  * BENCHMARK(insertVectorBegin, n) {

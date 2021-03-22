@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #pragma once
@@ -13,6 +13,7 @@
     #include "robin_hood.h"
     #define HASH_MAP robin_hood::unordered_map
 #elif 1
+    //#define EMH_FIBONACCI_HASH 1
     #include "hash_table5.hpp"
     #define HASH_MAP emhash5::HashMap
 #else

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #include "TimerQueueBase.h"

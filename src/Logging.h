@@ -40,7 +40,7 @@
 // emulates google3/base/logging.h
 
 enum LogLevel {
-    LOGLEVEL_INFO,      // Informational.  
+    LOGLEVEL_INFO,      // Informational.
     LOGLEVEL_WARNING,   // Warns about issues that, although not technically a
                         // problem now, could cause problems in the future.  For
                         // example, a // warning will be printed when parsing a

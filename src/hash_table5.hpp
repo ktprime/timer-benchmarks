@@ -435,6 +435,9 @@ public:
 
     iterator begin()
     {
+        if (_num_filled == 0)
+            return end();
+
         uint32_t bucket = 0;
         while (EMH_EMPTY(_pairs, bucket)) {
             ++bucket;
@@ -454,6 +457,9 @@ public:
 
     const_iterator cbegin() const
     {
+        if (_num_filled == 0)
+            return end();
+
         uint32_t bucket = 0;
         while (EMH_EMPTY(_pairs, bucket)) {
             ++bucket;
@@ -727,6 +733,28 @@ public:
     {
         const auto bucket = find_filled_bucket(key);
         return bucket != _num_buckets ? &EMH_VAL(_pairs, bucket) : nullptr;
+    }
+
+    /// set value if key exist
+    bool try_set(const KeyT& key, const ValueT& value) noexcept
+    {
+        const auto bucket = find_filled_bucket(key);
+        if (bucket == _num_buckets)
+            return false;
+
+        EMH_VAL(_pairs, bucket) = value;
+        return true;
+    }
+
+    /// set value if key exist
+    bool try_set(const KeyT& key, ValueT&& value) noexcept
+    {
+        const auto bucket = find_filled_bucket(key);
+        if (bucket == _num_buckets)
+            return false;
+
+        EMH_VAL(_pairs, bucket) = std::move(value);
+        return true;
     }
 
     /// Convenience function.
@@ -1024,9 +1052,10 @@ public:
         _last = _num_filled = 0;
     }
 
-    void shrink_to_fit()
+    void shrink_to_fit(const float min_factor = EMH_DEFAULT_LOAD_FACTOR / 4)
     {
-        rehash(_num_filled);
+        if (load_factor() < min_factor && bucket_count() > 10) //safe guard
+            rehash(_num_filled);
     }
 
     /// Make room for this many elements
@@ -1411,7 +1440,7 @@ one-way seach strategy.
     }
 
     static constexpr uint64_t KC = UINT64_C(11400714819323198485);
-    static inline uint64_t hash64(uint64_t key)
+    static uint64_t hash64(uint64_t key)
     {
 #if __SIZEOF_INT128__
         __uint128_t r = key; r *= KC;

@@ -12,7 +12,7 @@
 #include "Clock.h"
 
 
-const int MaxN = 100'005;   // max node count
+constexpr int MaxN = 100'005/2;   // max node count
 
 // Add timer with random duration
 inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
@@ -228,6 +228,22 @@ BENCHMARK(PQTimerTick, n)
 BENCHMARK_RELATIVE(TreeTimerTick, n)
 {
     TreeTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchTick(&timer, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(HashTimerTick, n)
+{
+    HashTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #include "PQTimer.h"
@@ -139,7 +139,7 @@ int PQTimer::Update(int64_t now)
         {
             break;
         }
-        
+
         auto cb = std::move(node->cb);
         Cancel(node);
         fired++;

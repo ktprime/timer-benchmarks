@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #pragma once
@@ -38,9 +38,9 @@ public:
 
     int Update(int64_t now = 0) override;
 
-    int Size() const override 
-    { 
-        return (int)tree_.size(); 
+    int Size() const override
+    {
+        return (int)tree_.size();
     }
 
 private:

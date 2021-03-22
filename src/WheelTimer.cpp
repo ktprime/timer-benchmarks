@@ -1,5 +1,5 @@
 // Copyright (C) 2018 ichenq@outlook.com. All rights reserved.
-// Distributed under the terms and conditions of the Apache License. 
+// Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
 #include "WheelTimer.h"
@@ -73,8 +73,8 @@ void WheelTimer::freeNode(TimerNode* node)
     if (free_list_.size() < free_list_.capacity())
     {
         free_list_.push_back(node);
-    } 
-    else 
+    }
+    else
     {
         delete node;
     }
@@ -86,7 +86,7 @@ void WheelTimer::addTimerNode(TimerNode* node)
     uint64_t idx = (uint64_t)(expires - jiffies_);
     TimerList* list = nullptr;
     if (idx < TVR_SIZE) // [0, 0x100)
-    {     
+    {
         int i = expires & TVR_MASK;
         list = &near_[i];
     }
@@ -190,7 +190,7 @@ int WheelTimer::tick()
             cascade(3, INDEX(3));
     }
 #undef INDEX
-    
+
     jiffies_++;
     fired += execute();
     return fired;
