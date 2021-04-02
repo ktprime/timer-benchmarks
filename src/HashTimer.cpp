@@ -61,7 +61,7 @@ bool HashTimer::Erase(const int timer_id)
         near_[expire % TVR_SIZE].erase(node->id);
 
     hash_.erase(itnode);
-    expire = node->id = INVALID_NODE_TIMERID;
+    expire = INVALID_NODE_TIMERID;
     freeNode(node);
     return true;
 }
@@ -79,7 +79,7 @@ bool HashTimer::Cancel(const int timer_id)
         near_[expire % TVR_SIZE].erase(node->id);
 
     hash_.erase(itnode);
-    expire = node->id = INVALID_NODE_TIMERID;
+    expire = INVALID_NODE_TIMERID;
     freeNode(node);
     return true;
 }
@@ -133,8 +133,7 @@ int HashTimer::tick(ehset<int>& timer_info)
 
     int fired = 0;
     for (auto it = timer_info_.begin(); it != timer_info_.end(); it++) {
-        auto timer_id = *it;
-        const auto itnode = hash_.find(timer_id);
+        const auto itnode = hash_.find(*it);
         if (itnode == hash_.end())
             return false;
 
@@ -143,7 +142,6 @@ int HashTimer::tick(ehset<int>& timer_info)
         auto& expire = node->expire;
         if (expire > jiffies_) {
             timer_info.insert_unique(node->id);
-            continue;
         } else if (expire == jiffies_) {
             hash_.erase(itnode);
             expire = 0;

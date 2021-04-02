@@ -92,7 +92,7 @@ public:
     typedef HashSet<KeyT, HashT, EqT> htype;
     typedef std::pair<KeyT, size_type> PairT;
     static constexpr bool bInCacheLine = sizeof(PairT) < 64 * 2 / 3;
-    static constexpr float default_load_factor = 0.95f;
+    static constexpr float default_load_factor = 0.90f;
 
     typedef KeyT     value_type;
     typedef KeyT&    reference;
@@ -235,7 +235,7 @@ public:
 
     HashSet(const HashSet& other)
     {
-        _pairs = (PairT*)malloc((2 + other._num_buckets) * sizeof(PairT));
+        _pairs = alloc_bucket(other._num_buckets);
         clone(other);
     }
 
@@ -263,7 +263,7 @@ public:
 
         if (_num_buckets != other._num_buckets) {
             free(_pairs);
-            _pairs = (PairT*)malloc((2u + other._num_buckets) * sizeof(PairT));
+            _pairs = alloc_bucket(other._num_buckets);
         }
 
         clone(other);
@@ -795,9 +795,17 @@ public:
         const auto required_buckets = num_elems * _loadlf >> 27;
         if (EMH_LIKELY(required_buckets < _num_buckets))
             return false;
+        else if (_num_filled < 16 && _num_filled < _num_buckets)
+            return false;
 
         rehash(required_buckets + 2);
         return true;
+    }
+
+    static inline PairT* alloc_bucket(uint32_t num_buckets)
+    {
+        auto new_pairs = (char*)malloc((2 + num_buckets) * sizeof(PairT));
+        return (PairT *)(new_pairs);
     }
 
 private:
@@ -823,11 +831,11 @@ private:
 
         _mask        = num_buckets - 1;
 #if EMH_HIGH_LOAD
-        num_buckets += num_buckets / 5;
+        num_buckets += num_buckets / 5 + 5;
 #endif
 
         //assert(num_buckets > _num_filled);
-        auto new_pairs = (PairT*)malloc((2 + num_buckets) * sizeof(PairT));
+        auto new_pairs = (PairT*)alloc_bucket(num_buckets);
         auto old_num_filled  = _num_filled;
         auto old_pairs = _pairs;
         auto old_max_bucket = _num_buckets;
@@ -1043,7 +1051,16 @@ private:
         if (_pairs[bucket].second == INACTIVE)
             return bucket;
 
-        for (size_type step = 1, slot = (bucket_from + 2) & _mask; ; slot = (1 + slot) & _mask, step ++) {
+        constexpr auto linear_probe_length = std::max((unsigned int)(128 / sizeof(PairT)) + 2, 4u);//cpu cache line 64 byte,2-3 cache line miss
+        auto offset = 1u;
+
+        for (; offset < linear_probe_length; offset ++) {
+             auto slot = (bucket + offset) & _mask;
+             if (_pairs[slot].second == INACTIVE)
+                return slot;
+        }
+
+        for (size_type step = 1, slot = (offset * 2) & _mask; ; slot = (1 + slot) & _mask, step ++) {
             if (_pairs[slot].second == INACTIVE || _pairs[++slot].second == INACTIVE)
                 return slot;
 

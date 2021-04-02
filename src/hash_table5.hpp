@@ -345,7 +345,7 @@ public:
 
     HashMap(const HashMap& other)
     {
-        _pairs = (PairT*)malloc((2 + other._num_buckets) * sizeof(PairT));
+        _pairs = alloc_bucket(other._num_buckets);
         clone(other);
     }
 
@@ -372,7 +372,7 @@ public:
 
         if (_num_buckets != other._num_buckets) {
             free(_pairs);
-            _pairs = (PairT*)malloc((2 + other._num_buckets) * sizeof(PairT));
+            _pairs = alloc_bucket(other._num_buckets);
         }
 
         clone(other);
@@ -393,6 +393,7 @@ public:
         if (is_triviall_destructable())
             clearkv();
         free(_pairs);
+        _pairs = nullptr;
     }
 
     void clone(const HashMap& other)
@@ -708,6 +709,17 @@ public:
             return { found, found };
         else
             return { found, std::next(found) };
+    }
+
+    template<typename V>
+    V try_get2(const KeyT key, V val) const
+    {
+        const auto bucket = find_filled_bucket(key);
+        const auto found = bucket != _num_buckets;
+        if (found) {
+            return (EMH_VAL(_pairs, bucket)).get();
+        }
+        return nullptr;
     }
 
     /// Returns the matching ValueT or nullptr if k isn't found.
@@ -1064,14 +1076,21 @@ public:
         const auto required_buckets = (uint32_t)(num_elems * _loadlf >> 27);
         if (EMH_LIKELY(required_buckets < _num_buckets))
             return false;
+        else if (_num_filled < 16 && _num_filled < _num_buckets)
+            return false;
 
-#if EMH_STATIS
-        if (_num_filled > 1'000'000) dump_statics();
+#if EMH_STATIS > 10
+        if (_num_filled > EMH_STATIS) dump_statics();
 #endif
-
         //assert(required_buckets < max_size());
         rehash(required_buckets + 1);
         return true;
+    }
+
+    static inline PairT* alloc_bucket(uint32_t num_buckets)
+    {
+        auto new_pairs = (char*)malloc((2 + num_buckets) * sizeof(PairT));
+        return (PairT *)(new_pairs);
     }
 
 private:
@@ -1083,7 +1102,7 @@ private:
         uint32_t num_buckets = _num_filled > 65536 ? (1u << 16) : 4u;
         while (num_buckets < required_buckets) { num_buckets *= 2; }
 
-        auto new_pairs = (PairT*)malloc((2 + num_buckets) * sizeof(PairT));
+        auto new_pairs = (PairT*)alloc_bucket(num_buckets);
         auto old_num_filled  = _num_filled;
         auto old_pairs = _pairs;
 #if EMH_REHASH_LOG
@@ -1388,8 +1407,8 @@ one-way seach strategy.
             _last &= _mask;
             if (EMH_EMPTY(_pairs, _last++) || EMH_EMPTY(_pairs, _last++))
                 return _last++ - 1;
-#if EMH_LINEAR3
-            auto tail = _mask - _last & _mask;
+#if EMH_LINEAR3 || 1
+            auto tail = _mask - (_last & _mask);
             if (EMH_EMPTY(_pairs, tail) || EMH_EMPTY(_pairs, ++tail))
                 return tail;
 #endif
