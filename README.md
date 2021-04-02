@@ -79,6 +79,30 @@ WheelTimer2Tick                                   80.77%     3.28ms   305.17
 ```
 
 
+```
+Intel(R) Xeon(R) CPU E5-2620 v3 @ 2.40GHz Ubu16.04 GCC 9.3 -O3
+/root/timer-benchmarks/test/BenchTimer.cpp       relative  time/iter  iters/s
+============================================================================
+PQTimerAdd                                                   7.44ms   134.38
+TreeTimerAdd                                      38.60%    19.28ms    51.87
+HashTimerAdd                                      82.08%     9.07ms   110.30
+WheelTimerAdd                                     98.97%     7.52ms   133.00
+WheelTimer2Add                                   173.26%     4.29ms   232.83
+----------------------------------------------------------------------------
+PQTimerDel                                                   7.67ms   130.44
+TreeTimerDel                                     46.96m%     16.33s   61.25m
+HashTimerDel                                     123.47%     6.21ms   161.06
+WheelTimerDel                                    185.02%     4.14ms   241.34
+WheelTimer2Del                                   263.86%     2.91ms   344.18
+----------------------------------------------------------------------------
+PQTimerTick                                                  1.43ms   700.06
+TreeTimerTick                                     43.78%     3.26ms   306.48
+HashTimerTick                                     55.74%     2.56ms   390.24
+WheelTimerTick                                    39.96%     3.57ms   279.77
+WheelTimer2Tick                                   81.62%     1.75ms   571.39
+============================================================================
+```
+
 # 结论
 
 * Windows和Linux两个平台有一些差异；
