@@ -56,26 +56,8 @@ class WheelTimer2 : public TimerQueueBase
 public:
     static constexpr int INVALID_NODE_TIMERID = -1;
     static constexpr int INVALID_NODE_SLOTID  = -2;
-    static constexpr int FREE_LIST_CAPACITY   = 1024;
-    static constexpr int ALLOC_SIZE           = 1024;
-
-    struct TimerNode
-    {
-        int64_t id;         // timer id
-        int64_t expire;     // jiffies
-        //int     slot;       // near index
-        TimerCallback cb;
-    };
-
-#if 1
-    typedef std::vector<TimerNode*> TimerList;
-#else
-    typedef std::list<TimerNode*> TimerList;
-#endif
-
 public:
     WheelTimer2();
-    ~WheelTimer2();
 
     int Schedule(uint32_t time_units, TimerCallback cb) override;
 
@@ -94,17 +76,10 @@ private:
     int execute();
     bool cascade(int bucket);
 
-    void clearAll();
-    TimerNode* allocNode();
-    void freeNode(TimerNode* node);
-    void freeList(TimerList& list);
 
 private:
     int64_t jiffies_ = 0;
     HASH_MAP<int, TimerNode* > ref_;
-    int alloc_size_  = 0;
-    TimerList free_list_;
     TimerList near_[TVR_SIZE];
     TimerList buckets_[WHEEL_BUCKETS][TVN_SIZE];
-    TimerList alloc_list_;
 };

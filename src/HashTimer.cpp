@@ -5,47 +5,6 @@ HashTimer::HashTimer()
     : jiffies_(Clock::CurrentTimeUnits())
     , hash_(4)
 {
-    alloc_size_ = 0;
-}
-
-HashTimer::~HashTimer()
-{
-    clearAll();
-}
-
-void HashTimer::clearAll()
-{
-    for (auto ptr : alloc_list_)
-        delete[] (ptr);
-    alloc_list_.clear();
-    alloc_size_ = 0;
-    free_list_.clear();
-    hash_.clear();
-}
-
-HashTimer::TimerNode* HashTimer::allocNode()
-{
-    TimerNode* node;
-    if (free_list_.size() > 0)
-    {
-        node = free_list_.back();
-        free_list_.pop_back();
-    }
-    else
-    {
-        if (alloc_size_ == 0)
-        {
-            alloc_size_ = ALLOC_SIZE;
-            alloc_list_.emplace_back(new TimerNode[alloc_size_]);
-        }
-        node = alloc_list_.back() + (--alloc_size_);
-    }
-    return node;
-}
-
-void HashTimer::freeNode(TimerNode* node)
-{
-    free_list_.emplace_back(node);
 }
 
 //cancellation

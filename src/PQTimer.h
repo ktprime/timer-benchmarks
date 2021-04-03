@@ -18,11 +18,8 @@
 class PQTimer : public TimerQueueBase
 {
 public:
-    struct TimerNode;
-
-public:
     PQTimer();
-    ~PQTimer();
+    //~PQTimer();
 
     int Schedule(uint32_t time_units, TimerCallback cb) override;
 
@@ -37,7 +34,6 @@ public:
 
 private:
     // DIY min-heap, you may try std::priority_queue
-    void clear();
     bool siftdown(int x, int n);
     void siftup(int j);
     void Cancel(TimerNode* node);

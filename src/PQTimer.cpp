@@ -5,14 +5,6 @@
 #include "PQTimer.h"
 #include "Clock.h"
 
-struct PQTimer::TimerNode
-{
-    int index = -1;
-    int id = -1;
-    int64_t expires = 0;
-    TimerCallback cb;
-};
-
 PQTimer::PQTimer()
 {
     // reserve a little space
@@ -20,17 +12,7 @@ PQTimer::PQTimer()
 }
 
 
-PQTimer::~PQTimer()
-{
-    clear();
-}
-
-void PQTimer::clear()
-{
-    heap_.clear();
-}
-
-#define HEAP_ITEM_LESS(i, j) (heap_[(i)]->expires < heap_[(j)]->expires)
+#define HEAP_ITEM_LESS(i, j) (heap_[(i)]->expire < heap_[(j)]->expire)
 
 bool PQTimer::siftdown(int x, int n)
 {
@@ -82,7 +64,7 @@ int PQTimer::Schedule(uint32_t time_units, TimerCallback cb)
     TimerNode* node = new TimerNode;
     int id = nextCounter();
     node->id = id;
-    node->expires = expire;
+    node->expire = expire;
     node->cb = cb;
     node->index = (int)heap_.size();
     heap_.push_back(node);
@@ -135,7 +117,7 @@ int PQTimer::Update(int64_t now)
     while (!heap_.empty())
     {
         TimerNode* node = heap_.front();
-        if (now < node->expires)
+        if (now < node->expire)
         {
             break;
         }

@@ -48,21 +48,7 @@ enum TIME_WHEEL
 class WheelTimer : public TimerQueueBase
 {
 public:
-    struct TimerNode
-    {
-        bool canceled = false;  // do lazy cancellation
-        int id = -1;
-        int64_t expire = -1;     // jiffies
-        TimerCallback cb;
-    };
-
-    typedef std::vector<TimerNode*> TimerList;
-
-    const int FREE_LIST_CAPACITY = 1024;
-
-public:
     WheelTimer();
-    ~WheelTimer();
 
     int Schedule(uint32_t time_units, TimerCallback cb) override;
 
@@ -80,17 +66,12 @@ private:
     void addTimerNode(TimerNode* node);
     int execute();
     bool cascade(int bucket, int index);
-    void clearList(TimerList& list);
-    void clearAll();
-    TimerNode* allocNode();
-    void freeNode(TimerNode*);
 
 private:
     int size_ = 0;
     int64_t current_ = 0;
     int64_t jiffies_ = 0;
     HASH_MAP<int, TimerNode*> ref_;       // make O(1) searching
-    TimerList   free_list_;
     TimerList near_[TVR_SIZE];
     TimerList buckets_[WHEEL_BUCKETS][TVN_SIZE];
 };

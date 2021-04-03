@@ -48,5 +48,6 @@ private:
 
 private:
     std::multiset<TimerNode> tree_;  // std::multiset as a red-black tree
+    HASH_MAP<int, std::multiset<TimerNode>::iterator> ref_; 
 };
 

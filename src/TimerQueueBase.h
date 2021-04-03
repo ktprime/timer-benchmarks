@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <functional>
 #include <unordered_map>
+#include <vector>
 
 
 #if 0
@@ -27,6 +28,22 @@ typedef std::function<void()> TimerCallback;
 class TimerQueueBase
 {
 public:
+    struct TimerNode
+    {
+        int id;         // timer id
+        int index;         // timer id
+        int64_t expire;     // jiffies
+        //int     slot;       // near index
+        TimerCallback cb;
+    };
+
+#if 1
+    typedef std::vector<TimerNode*> TimerList;
+#else
+    typedef std::list<TimerNode*> TimerList;
+#endif
+
+public:
     TimerQueueBase();
     virtual ~TimerQueueBase();
 
@@ -46,8 +63,15 @@ public:
     // count of timers not fired
     virtual int Size() const = 0;
 
+    void freeNode(TimerNode* node);
+    void freeList(TimerList& list);
+    void clearAll();
+    TimerNode* allocNode();
 protected:
     int nextCounter();
 
     int counter_ = 0;   // next timer id
+    int alloc_size_  = 0;
+    TimerList free_list_;
+    TimerList alloc_list_;
 };

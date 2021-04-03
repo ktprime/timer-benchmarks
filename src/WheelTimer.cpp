@@ -13,71 +13,6 @@ WheelTimer::WheelTimer()
     : current_(Clock::CurrentTimeUnits())
 {
     ref_.reserve(64);            // reserve a little space
-    free_list_.reserve(FREE_LIST_CAPACITY);
-    //printf("wheel start at %lld\n", current_);
-}
-
-
-WheelTimer::~WheelTimer()
-{
-    clearAll();
-}
-
-void WheelTimer::clearList(TimerList& list)
-{
-    for (auto ptr : list)
-    {
-        delete ptr;
-    }
-    list.clear();
-}
-
-void WheelTimer::clearAll()
-{
-    for (int i = 0; i < TVR_SIZE; i++)
-    {
-        clearList(near_[i]);
-    }
-    for (int i = 0; i < WHEEL_BUCKETS; i++)
-    {
-        for (int j = 0; j < TVN_SIZE; j++)
-        {
-            clearList(buckets_[i][j]);
-        }
-    }
-    ref_.clear();
-    for (auto node : free_list_)
-    {
-        delete node;
-    }
-}
-
-WheelTimer::TimerNode* WheelTimer::allocNode()
-{
-    TimerNode* node = nullptr;
-    if (free_list_.size() > 0)
-    {
-        node = free_list_.back();
-        free_list_.pop_back();
-    }
-    else
-    {
-        node = new TimerNode;
-    }
-    return node;
-}
-
-
-void WheelTimer::freeNode(TimerNode* node)
-{
-    if (free_list_.size() < free_list_.capacity())
-    {
-        free_list_.push_back(node);
-    }
-    else
-    {
-        delete node;
-    }
 }
 
 void WheelTimer::addTimerNode(TimerNode* node)
@@ -131,7 +66,7 @@ void WheelTimer::addTimerNode(TimerNode* node)
 int WheelTimer::Schedule(uint32_t time_units, TimerCallback cb)
 {
     TimerNode* node = allocNode();
-    node->canceled = false;
+    node->index = false;
     node->cb = cb;
     node->expire = jiffies_ + time_units;
     node->id = nextCounter();
@@ -148,7 +83,7 @@ bool WheelTimer::Cancel(int id)
     TimerNode* node = ref_[id];
     if (node != nullptr)
     {
-        node->canceled = true;
+        node->index = true;
         size_--;
         return true;
     }
@@ -204,7 +139,7 @@ int WheelTimer::execute()
     near_[index].swap(expired); // swap list
     for (auto node : expired)
     {
-        if (!node->canceled && node->cb)
+        if (!node->index && node->cb)
         {
             //printf("wheel node %d triggered at %lld of jiffies %lld\n", node->id, current_, jiffies_);
             node->cb();

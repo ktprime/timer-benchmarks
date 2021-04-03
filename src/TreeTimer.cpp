@@ -28,22 +28,21 @@ int TreeTimer::Schedule(uint32_t time_units, TimerCallback cb)
     node.id = nextCounter();
     node.expires = expire;
     node.cb = cb;
-    tree_.insert(node);
+    auto it = tree_.insert(node);
+    ref_.emplace(node.id, it);
     return node.id;
 }
 
 // This operation is O(n) complexity
 bool TreeTimer::Cancel(int id)
 {
-    for (auto iter = tree_.begin(); iter != tree_.end(); ++iter)
-    {
-        if (iter->id == id)
-        {
-            tree_.erase(iter);
-            return true;
-        }
-    }
-    return false;
+   auto it = ref_.find(id);
+   if (it != ref_.end()) {
+      tree_.erase(it->second);
+      ref_.erase(it); 
+      return true;
+   }
+   return false;
 }
 
 int TreeTimer::Update(int64_t now)
@@ -67,6 +66,7 @@ int TreeTimer::Update(int64_t now)
         }
         auto cb = std::move(node.cb);
         tree_.erase(iter);
+        ref_.erase(node.id); 
         fired++;
         if (cb)
         {

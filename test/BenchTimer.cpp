@@ -12,7 +12,7 @@
 #include "Clock.h"
 
 
-constexpr int MaxN = 100'005/2;   // max node count
+constexpr int MaxN = 100'005/1;   // max node count
 
 // Add timer with random duration
 inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
