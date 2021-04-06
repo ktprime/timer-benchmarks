@@ -38,9 +38,9 @@ bool TreeTimer::Cancel(int id)
 {
    auto it = ref_.find(id);
    if (it != ref_.end()) {
-      tree_.erase(it->second);
-      ref_.erase(it); 
-      return true;
+       tree_.erase(it->second);
+       ref_.erase(it);
+       return true;
    }
    return false;
 }
@@ -65,13 +65,11 @@ int TreeTimer::Update(int64_t now)
             break;
         }
         auto cb = std::move(node.cb);
-        tree_.erase(iter);
-        ref_.erase(node.id); 
-        fired++;
         if (cb)
-        {
             cb();
-        }
+        ref_.erase(node.id);
+        tree_.erase(iter);
+        fired++;
     }
     return fired;
 }
