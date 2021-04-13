@@ -80,9 +80,6 @@ WheelTimer2Tick                                   82.83%     4.68ms   213.48
 
 ```
 Intel(R) Xeon(R) CPU E5-2620 v3 @ 2.40GHz Ubu16.04 GCC 9.3 -O3
-/root/timer-benchmarks/test/BenchTimer.cpp       relative  time/iter  iters/s
-============================================================================
-/root/timer-benchmarks/test/BenchTimer.cpp       relative  time/iter  iters/s
 ============================================================================
 PQTimerAdd                                                  14.80ms    67.57
 TreeTimerAdd                                      27.21%    54.38ms    18.39
@@ -106,10 +103,10 @@ WheelTimer2Tick                                   84.41%     3.39ms   295.37
 
 # 结论
 
-* Windows和Linux两个平台有一些差异；
-* 相比之下，改进后的WheelTimer2性能消耗最少；
-* Hash桶实现的定时器对于数量不是巨大(>10万), 性能还不错适合于客户端使用
-* 最小堆的编码实现最简单，大多数编程语言都可以迅速实现，实现难度：哈希桶 < 最小堆 < 时间轮 < 红黑树；
+* Windows和Linux两个平台有一些差异
+* 相比之下，TreeTimer因为动态内存分配导致性能最差
+* Hash桶实现的定时器对于数量不是巨大(<1万), 性能不错适合于客户端使用
+* 最小堆的编码实现最简单，大多数编程语言都可以迅速实现，实现难度：红黑树 < 哈希桶 < 时间轮 < 最小堆
 
 
 ## TO-DO
