@@ -32,8 +32,8 @@ public:
     {
         int id;         // timer id
         int index;         // timer id
+        int     slot;       // near index
         int64_t expire;     // jiffies
-        //int     slot;       // near index
         TimerCallback cb;
     };
 

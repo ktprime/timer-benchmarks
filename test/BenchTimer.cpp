@@ -9,6 +9,7 @@
 #include "WheelTimer.h"
 #include "WheelTimer2.h"
 #include "HashTimer.h"
+#include "HashTimer2.h"
 #include "Clock.h"
 
 
@@ -20,7 +21,7 @@ inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
     std::vector<int> durations;
     for (int i = 0; i < n; i++)
     {
-        durations.push_back(i + rand() % 4);
+        durations.push_back(i + rand() % 8);
     }
     std::random_shuffle(durations.begin(), durations.end());
     auto dummy = []() {};
@@ -95,6 +96,22 @@ BENCHMARK_RELATIVE(HashTimerAdd, n)
     doNotOptimizeAway(timer);
 }
 
+BENCHMARK_RELATIVE(HashTimer2Add, n)
+{
+    HashTimer2 timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+    }
+
+    fillTimer(&timer, ids, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
+
 BENCHMARK_RELATIVE(WheelTimerAdd, n)
 {
     WheelTimer timer;
@@ -162,6 +179,22 @@ BENCHMARK_RELATIVE(TreeTimerDel, n)
 BENCHMARK_RELATIVE(HashTimerDel, n)
 {
     HashTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchCancel(&timer, ids);
+
+    doNotOptimizeAway(timer);
+}
+
+BENCHMARK_RELATIVE(HashTimer2Del, n)
+{
+    HashTimer2 timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -256,6 +289,23 @@ BENCHMARK_RELATIVE(HashTimerTick, n)
 
     doNotOptimizeAway(timer);
 }
+
+BENCHMARK_RELATIVE(HashTimer2Tick, n)
+{
+    HashTimer2 timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+        fillTimer(&timer, ids, MaxN);
+    }
+
+    benchTick(&timer, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
 
 BENCHMARK_RELATIVE(WheelTimerTick, n)
 {

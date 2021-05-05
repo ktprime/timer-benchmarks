@@ -10,6 +10,7 @@
 #include "PQTimer.h"
 #include "TreeTimer.h"
 #include "HashTimer.h"
+#include "HashTimer2.h"
 #include "WheelTimer.h"
 #include "WheelTimer2.h"
 #include "Clock.h"
@@ -41,7 +42,7 @@ static void TestTimerAdd(TimerQueueBase* timer, int count)
     }
 
     // to make sure timing-wheel trigger all timers at next time unit
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME_UNIT));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME_UNIT + 10));
 
     EXPECT_EQ(timer->Size(), count);
     int fired = timer->Update();
@@ -165,6 +166,15 @@ TEST(TimerQueue, HashTimerAdd)
     }
 }
 
+TEST(TimerQueue, HashTimer2Add)
+{
+    HashTimer2 timer;
+    for (int i = 0; i < TRY; i++)
+    {
+        TestTimerAdd(&timer, N1);
+    }
+}
+
 TEST(TimerQueue, MinHeapTimerExecute)
 {
     PQTimer timer;
@@ -193,6 +203,12 @@ TEST(TimerQueue, WheelTimer2Execute)
 TEST(TimerQueue, HashTimerExecute)
 {
     HashTimer timer;
+    TestTimerExpire(&timer, N2);
+}
+
+TEST(TimerQueue, HashTimer2Execute)
+{
+    HashTimer2 timer;
     TestTimerExpire(&timer, N2);
 }
 
