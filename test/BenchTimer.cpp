@@ -8,8 +8,8 @@
 #include "TreeTimer.h"
 #include "WheelTimer.h"
 #include "WheelTimer2.h"
+#include "BucketTimer.h"
 #include "HashTimer.h"
-#include "HashTimer2.h"
 #include "Clock.h"
 
 
@@ -50,7 +50,6 @@ inline void benchTick(TimerQueueBase* timer, int n)
     }
 }
 
-
 BENCHMARK(PQTimerAdd , n)
 {
     PQTimer timer;
@@ -81,6 +80,21 @@ BENCHMARK_RELATIVE(TreeTimerAdd, n)
     doNotOptimizeAway(timer);
 }
 
+BENCHMARK_RELATIVE(BucketTimerAdd, n)
+{
+    BucketTimer timer;
+    std::vector<int> ids;
+
+    BENCHMARK_SUSPEND
+    {
+        ids.reserve(MaxN);
+    }
+
+    fillTimer(&timer, ids, MaxN);
+
+    doNotOptimizeAway(timer);
+}
+
 BENCHMARK_RELATIVE(HashTimerAdd, n)
 {
     HashTimer timer;
@@ -95,22 +109,6 @@ BENCHMARK_RELATIVE(HashTimerAdd, n)
 
     doNotOptimizeAway(timer);
 }
-
-BENCHMARK_RELATIVE(HashTimer2Add, n)
-{
-    HashTimer2 timer;
-    std::vector<int> ids;
-
-    BENCHMARK_SUSPEND
-    {
-        ids.reserve(MaxN);
-    }
-
-    fillTimer(&timer, ids, MaxN);
-
-    doNotOptimizeAway(timer);
-}
-
 
 BENCHMARK_RELATIVE(WheelTimerAdd, n)
 {
@@ -176,9 +174,9 @@ BENCHMARK_RELATIVE(TreeTimerDel, n)
     doNotOptimizeAway(timer);
 }
 
-BENCHMARK_RELATIVE(HashTimerDel, n)
+BENCHMARK_RELATIVE(BucketTimerDel, n)
 {
-    HashTimer timer;
+    BucketTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -192,9 +190,9 @@ BENCHMARK_RELATIVE(HashTimerDel, n)
     doNotOptimizeAway(timer);
 }
 
-BENCHMARK_RELATIVE(HashTimer2Del, n)
+BENCHMARK_RELATIVE(HashTimerDel, n)
 {
-    HashTimer2 timer;
+    HashTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -274,9 +272,9 @@ BENCHMARK_RELATIVE(TreeTimerTick, n)
     doNotOptimizeAway(timer);
 }
 
-BENCHMARK_RELATIVE(HashTimerTick, n)
+BENCHMARK_RELATIVE(BucketTimerTick, n)
 {
-    HashTimer timer;
+    BucketTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND
@@ -290,9 +288,9 @@ BENCHMARK_RELATIVE(HashTimerTick, n)
     doNotOptimizeAway(timer);
 }
 
-BENCHMARK_RELATIVE(HashTimer2Tick, n)
+BENCHMARK_RELATIVE(HashTimerTick, n)
 {
-    HashTimer2 timer;
+    HashTimer timer;
     std::vector<int> ids;
 
     BENCHMARK_SUSPEND

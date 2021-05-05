@@ -5,13 +5,24 @@
 #include <array>
 
 #include "TimerQueueBase.h"
+struct TimerNodeHasher
+{
+    std::size_t operator()(const TimerQueueBase:: TimerNode* node) const
+    {
+    //    if (node->expire < 0)
+    //        return -node->expire;
+        return node->expire;
+    }
+};
 
-#if 0
-#define ehset emhash2::HashSet
-#include "hash_set2.hpp"
-#else
-#define ehset emhash3::HashSet
+using TimerNode = TimerQueueBase::TimerNode;
+#define TEST_SLOT_FEATURE 1
+#if 1
 #include "hash_set3.hpp"
+#define ehset emhash3::HashSet<TimerNode*, TimerNodeHasher>
+#else
+#include "hash_set2.hpp"
+#define ehset emhash2::HashSet<TimerNode*, TimerNodeHasher>
 #endif
 
 // complexity:
@@ -21,9 +32,8 @@
 class HashTimer: public TimerQueueBase
 {
 public:
-    static constexpr int INVALID_NODE_TIMERID = -1;
-    //static constexpr int TIME_UNIT = 1;                  // centisecond, i.e. 1/1000 second
-    static constexpr int TVR_SIZE = (1 << 14);
+    static constexpr int TIMER_ID_INVALID = 0;
+    static constexpr int INVALID_NODE_TIMERID = 0;
 
 public:
     HashTimer();
@@ -36,19 +46,19 @@ public:
     bool Erase(const int timer_id);
     int Update(int64_t now = 0) override;
     int NearTime(const int slots);
-    int Size()  const override { return hash_.size(); }
+    int Size()  const override { return near_.size(); }
     int Exec() const  { return executs_; }
-    int TimerId() const { return timerId_;  }
+    int TimerId() const { return timerId_; }
 
 private:
-    int tick(ehset<int>& timer_info);
+    int tick(std::vector<TimerNode*>& run_info);
 
 private:
     int timerId_ = 0;
     int64_t jiffies_ = 0;
     int executs_ = 0;
-
-    ehset<int> timer_info_;
-    HASH_MAP<int, TimerNode*> hash_;
-    std::array<ehset<int>, TVR_SIZE> near_;
+    ehset near_;
+    std::vector<TimerNode*> hash_;
+    std::vector<TimerNode*> run_info_;
 };
+

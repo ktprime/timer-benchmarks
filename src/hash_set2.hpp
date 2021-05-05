@@ -62,7 +62,6 @@
     #undef EMH_ENTRY
 #endif
 
-#define TEST_SLOT_FEATURE
 // likely/unlikely
 #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
 #    define EMH_LIKELY(condition) __builtin_expect(condition, 1)
@@ -84,11 +83,11 @@ class HashSet
 public:
     //if constexpr (sizeof(KeyT) <= 4 && std::is_integral<KeyT>::value)
 #ifndef EMH_SIZE_TYPE_64BIT
-        typedef uint32_t size_type;
-        static constexpr size_type INACTIVE = 0-1u;
+    typedef uint32_t size_type;
+    static constexpr size_type INACTIVE = 0-1u;
 #else
-        typedef uint64_t size_type;
-        static constexpr size_type INACTIVE = 0-1ull;
+    typedef uint64_t size_type;
+    static constexpr size_type INACTIVE = 0-1ull;
 #endif
 
     typedef HashSet<KeyT, HashT, EqT> htype;
@@ -233,8 +232,7 @@ public:
     void init(size_type bucket, float lf)
     {
         _pairs = nullptr;
-        _num_buckets = 0;
-        _num_filled = 0;
+        _num_buckets = _num_filled = 0;
 
         max_load_factor(lf);
         reserve(bucket);
@@ -260,7 +258,7 @@ public:
 
     HashSet(std::initializer_list<value_type> il, size_type n = 8)
     {
-        init((size_type)il.size());
+        init(std::max((size_type)il.size(), n));
         for (auto begin = il.begin(); begin != il.end(); ++begin)
             insert(*begin);
     }
@@ -392,7 +390,7 @@ public:
     /// Returns average number of elements per bucket.
     float load_factor() const
     {
-        return static_cast<float>(_num_filled) / (_num_buckets + 1);
+        return static_cast<float>(_num_filled) / (_num_buckets + 0.01f);
     }
 
     HashT& hash_function() const
@@ -455,7 +453,7 @@ public:
 
     int64_t near_bucket(int64_t key, size_type buckets) const
     {
-        auto bfrom = get_main_bucket(key);
+        int64_t bfrom = get_main_bucket(key);
         if (bfrom == -1)
             bfrom = key;
 
@@ -503,7 +501,7 @@ public:
         auto next_bucket = _pairs[main_bucket].second;
         if (next_bucket == main_bucket) {
             //clear_bucket(main_bucket);
-            return vec.size();
+            return 1;
         }
 
         while (true) {
@@ -796,12 +794,12 @@ public:
     template <class... Args>
     iterator emplace_hint(const_iterator position, Args&&... args)
     {
-        return insert(std::forward<Args>(args)...).first;
+        return insert(std::forward<Args>(args)...);
     }
 
     std::pair<iterator, bool> try_emplace(const value_type& k)
     {
-        return insert(k).first;
+        return insert(k);
     }
 
     template <class... Args>
@@ -817,10 +815,12 @@ public:
     //3. reset
     void clear_bucket(size_type bucket)
     {
-        if (!std::is_trivially_destructible<KeyT>::value)
-            _pairs[bucket].~PairT();
         _pairs[bucket].second = INACTIVE;
         _num_filled --;
+        if (!std::is_trivially_destructible<KeyT>::value) {
+            _pairs[bucket].~PairT();
+            _pairs[bucket].second = INACTIVE;
+        }
 
 #if EMH_HIGH_LOAD
         if (bucket <= _last_colls)
@@ -842,7 +842,7 @@ public:
 
         if (!std::is_trivially_destructible<KeyT>::value) {
             new(_pairs + bucket) PairT(std::move(key), last_next != last_bucket ? last_next : bucket);
-#ifndef TEST_SLOT_FEATURE
+#ifdef TEST_SLOT_FEATURE
             _pairs[bucket]->slot = bucket;
 #endif
             _pairs[last_bucket].~PairT();
@@ -936,10 +936,10 @@ public:
         return true;
     }
 
-    static inline PairT* alloc_bucket(uint32_t num_buckets)
+    static inline PairT* alloc_bucket(size_type num_buckets)
     {
         auto new_pairs = (char*)malloc((2 + num_buckets) * sizeof(PairT));
-        return (PairT *)(new_pairs);
+        return (PairT*)(new_pairs);
     }
 
 private:
@@ -971,8 +971,8 @@ private:
         //assert(num_buckets > _num_filled);
         auto new_pairs = (PairT*)alloc_bucket(num_buckets);
         auto old_num_filled  = _num_filled;
+        auto old_num_buckets = _num_buckets;
         auto old_pairs = _pairs;
-        auto old_max_bucket = _num_buckets;
 
         _num_filled  = 0;
         _num_buckets = num_buckets;
@@ -985,7 +985,7 @@ private:
             for (size_type bucket = 0; bucket < num_buckets; bucket++)
                 _pairs[bucket].second = INACTIVE;
         }
-        _pairs[num_buckets + 0].second = _pairs[num_buckets + 1].second = 0;
+        memset(_pairs + num_buckets, 0, sizeof(_pairs[0]) * 2);
 
         //set all main bucket first
         for (size_type src_bucket = 0; _num_filled < old_num_filled; src_bucket++) {
@@ -995,7 +995,7 @@ private:
 
             const auto bucket = find_unique_bucket(opairs.first);
             EMH_ENTRY(std::move(opairs.first), bucket);
-#ifndef TEST_SLOT_FEATURE
+#ifdef TEST_SLOT_FEATURE
             _pairs[bucket].first->slot = bucket;
 #endif
             if (!std::is_trivially_destructible<KeyT>::value)
@@ -1045,7 +1045,7 @@ private:
                 _pairs[bucket].first = _pairs[next_bucket].first;
             else
                 std::swap(_pairs[bucket].first, _pairs[next_bucket].first);
-#ifndef TEST_SLOT_FEATURE
+#ifdef TEST_SLOT_FEATURE
             _pairs[bucket].first->slot = bucket;
 #endif
             _pairs[bucket].second = (nbucket == next_bucket) ? bucket : nbucket;
@@ -1083,7 +1083,7 @@ private:
                 else
                     std::swap(_pairs[bucket].first, _pairs[next_bucket].first);
                 _pairs[bucket].second = (nbucket == next_bucket) ? bucket : nbucket;
-#ifndef TEST_SLOT_FEATURE
+#ifdef TEST_SLOT_FEATURE
                 _pairs[bucket].first->slot = bucket;
 #endif
             }
@@ -1134,7 +1134,7 @@ private:
         const auto new_bucket  = find_empty_bucket(next_bucket);
         const auto prev_bucket = find_prev_bucket(main_bucket, bucket);
         EMH_MOVE(new_bucket, std::move(_pairs[bucket]));
-#ifndef TEST_SLOT_FEATURE
+#ifdef TEST_SLOT_FEATURE
         _pairs[new_bucket].first->slot = new_bucket;
 #endif
 
@@ -1165,9 +1165,9 @@ private:
             return bucket;
 
         //check current bucket_key is in main bucket or not
-        const auto main_bucket = hash_bucket(bucket_key);
-        if (main_bucket != bucket)
-            return kickout_bucket(main_bucket, bucket);
+        const auto obmain = hash_bucket(bucket_key);
+        if (obmain != bucket)
+            return kickout_bucket(obmain, bucket);
         else if (next_bucket == bucket)
             return _pairs[next_bucket].second = find_empty_bucket(next_bucket);
 
@@ -1192,6 +1192,25 @@ private:
         const auto new_bucket = find_empty_bucket(next_bucket);
         return _pairs[next_bucket].second = new_bucket;
     }
+
+    size_type find_unique_bucket(const KeyT& key)
+    {
+        const auto bucket = hash_bucket(key);
+        auto next_bucket = _pairs[bucket].second;
+        if (next_bucket == INACTIVE)
+            return bucket;
+
+        //check current bucket_key is in main bucket or not
+        const auto obmain = hash_bucket(_pairs[bucket].first);
+        if (obmain != bucket)
+            return kickout_bucket(obmain, bucket);
+        else if (next_bucket != bucket)
+            next_bucket = find_last_bucket(next_bucket);
+
+        //find a new empty and link it to tail
+        return _pairs[next_bucket].second = find_empty_bucket(next_bucket);
+    }
+
 
     // key is not in this map. Find a place to put it.
     size_type find_empty_bucket(const size_type bucket_from)
@@ -1258,24 +1277,6 @@ private:
         }
     }
 
-    size_type find_unique_bucket(const KeyT& key)
-    {
-        const auto bucket = hash_bucket(key);
-        auto next_bucket = _pairs[bucket].second;
-        if (next_bucket == INACTIVE)
-            return bucket;
-
-        //check current bucket_key is in main bucket or not
-        const auto main_bucket = hash_bucket(_pairs[bucket].first);
-        if (main_bucket != bucket)
-            return kickout_bucket(main_bucket, bucket);
-        else if (next_bucket != bucket)
-            next_bucket = find_last_bucket(next_bucket);
-
-        //find a new empty and link it to tail
-        return _pairs[next_bucket].second = find_empty_bucket(next_bucket);
-    }
-
     const static uint64_t KC = UINT64_C(11400714819323198485);
     static inline uint64_t hash64(uint64_t key)
     {
@@ -1286,7 +1287,12 @@ private:
         uint64_t high;
         return _umul128(key, KC, &high) + high;
 #elif 1
-        uint64_t const r = key * UINT64_C(0xca4bcaa75ec3f625);
+        auto low  =  key;
+        auto high = (key >> 32) | (key << 32);
+        auto mix  = (0x94d049bb133111ebull * low + 0xbf58476d1ce4e5b9ull * high);
+        return mix >> 32;
+#elif 1
+        uint64_t r = key * UINT64_C(0xca4bcaa75ec3f625);
         return (r >> 32) + r;
 #elif 1
         //MurmurHash3Mixer

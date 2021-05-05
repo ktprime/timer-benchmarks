@@ -260,6 +260,11 @@ public:
             return _bucket != rhs._bucket;
         }
 
+        size_type bucket() const
+        {
+            return _bucket;
+        }
+
     private:
         void goto_next_element()
         {
@@ -316,6 +321,11 @@ public:
         bool operator!=(const const_iterator& rhs) const
         {
             return _bucket != rhs._bucket;
+        }
+
+        size_type bucket() const
+        {
+            return _bucket;
         }
 
     private:

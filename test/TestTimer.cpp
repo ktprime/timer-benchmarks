@@ -9,8 +9,8 @@
 #include <gtest/gtest.h>
 #include "PQTimer.h"
 #include "TreeTimer.h"
+#include "BucketTimer.h"
 #include "HashTimer.h"
-#include "HashTimer2.h"
 #include "WheelTimer.h"
 #include "WheelTimer2.h"
 #include "Clock.h"
@@ -156,6 +156,14 @@ TEST(TimerQueue, WheelTimer2Add)
     }
 }
 
+TEST(TimerQueue, BucketTimerAdd)
+{
+    BucketTimer timer;
+    for (int i = 0; i < TRY; i++)
+    {
+        TestTimerAdd(&timer, N1);
+    }
+}
 
 TEST(TimerQueue, HashTimerAdd)
 {
@@ -166,16 +174,7 @@ TEST(TimerQueue, HashTimerAdd)
     }
 }
 
-TEST(TimerQueue, HashTimer2Add)
-{
-    HashTimer2 timer;
-    for (int i = 0; i < TRY; i++)
-    {
-        TestTimerAdd(&timer, N1);
-    }
-}
-
-TEST(TimerQueue, MinHeapTimerExecute)
+TEST(TimerQueue, HeapTimerExecute)
 {
     PQTimer timer;
     TestTimerExpire(&timer, N2);
@@ -200,15 +199,15 @@ TEST(TimerQueue, WheelTimer2Execute)
 }
 
 
-TEST(TimerQueue, HashTimerExecute)
+TEST(TimerQueue, BucketTimerExecute)
 {
-    HashTimer timer;
+    BucketTimer timer;
     TestTimerExpire(&timer, N2);
 }
 
-TEST(TimerQueue, HashTimer2Execute)
+TEST(TimerQueue, HashTimerExecute)
 {
-    HashTimer2 timer;
+    HashTimer timer;
     TestTimerExpire(&timer, N2);
 }
 

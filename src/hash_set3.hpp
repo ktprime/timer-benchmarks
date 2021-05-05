@@ -869,7 +869,7 @@ public:
     /// return 0 if not erase
     size_type erase_node(const KeyT& key, const size_type slot)
     {
-        assert(slot < _num_buckets && _pairs[slot].second != INACTIVE);
+        //assert(slot < _num_buckets && _pairs[slot].second != INACTIVE);
         if (_pairs[slot].first == key) {
             const auto bucket = erase_bucket(slot);
             clear_bucket(bucket);
