@@ -9,8 +9,8 @@ struct TimerNodeHasher
 {
     std::size_t operator()(const TimerQueueBase:: TimerNode* node) const
     {
-        if (node->expire < 0)
-            return -node->expire;
+    //    if (node->expire < 0)
+    //        return -node->expire;
         return node->expire;
     }
 };
@@ -58,7 +58,7 @@ private:
     int64_t jiffies_ = 0;
     int executs_ = 0;
     ehset near_;
-    HASH_MAP<int, TimerNode*> hash_;
+    std::vector<TimerNode*> hash_;
     std::vector<TimerNode*> run_info_;
 };
 

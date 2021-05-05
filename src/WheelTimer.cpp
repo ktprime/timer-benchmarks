@@ -66,14 +66,13 @@ void WheelTimer::addTimerNode(TimerNode* node)
 int WheelTimer::Schedule(uint32_t time_units, TimerCallback cb)
 {
     TimerNode* node = allocNode();
-    node->index = false;
+    node->slot = size_;
     node->cb = cb;
     node->expire = jiffies_ + time_units;
     node->id = nextCounter();
     addTimerNode(node);
-    ref_[node->id] = node;
+    ref_.insert_unique(node->id, node);
     size_++;
-    //printf("wheel node %d scheduled at %lld to %lld #%lld\n", node->id, current_, current_ + time_units, node->expire);
     return node->id;
 }
 
@@ -83,7 +82,7 @@ bool WheelTimer::Cancel(int id)
     TimerNode* node = ref_[id];
     if (node != nullptr)
     {
-        node->index = true;
+        node->slot = -1;
         size_--;
         return true;
     }
@@ -139,9 +138,8 @@ int WheelTimer::execute()
     near_[index].swap(expired); // swap list
     for (auto node : expired)
     {
-        if (!node->index && node->cb)
+        if (node->slot >= 0)
         {
-            //printf("wheel node %d triggered at %lld of jiffies %lld\n", node->id, current_, jiffies_);
             node->cb();
             size_--;
             fired++;
@@ -172,7 +170,6 @@ int WheelTimer::Update(int64_t now)
         int fired = 0;
         for (int i = 0; i < ticks; i++)
         {
-            //printf("tick of jiffies %lld at %lld, %d/%d\n", jiffies_, current_, i, ticks);
             fired += tick();
         }
         return fired;

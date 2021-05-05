@@ -30,8 +30,7 @@ class TimerQueueBase
 public:
     struct TimerNode
     {
-        int id;         // timer id
-        int index;         // timer id
+        int     id;         // timer id
         int     slot;       // near index
         int64_t expire;     // jiffies
         TimerCallback cb;

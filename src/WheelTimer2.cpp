@@ -13,21 +13,6 @@ WheelTimer2::WheelTimer2()
     ref_.reserve(64);            // reserve a little space
 }
 
-// Do lazy cancellation, so we can effectively use vector as container of timer nodes
-bool WheelTimer2::Cancel(int timer_id)
-{
-    const auto itnode = ref_.find(timer_id);
-    if (itnode == ref_.end())
-        return false;
-
-    auto node = itnode->second;
-    ref_.erase(itnode);
-    node->expire = 0;
-    node->id = INVALID_NODE_TIMERID;
-
-    return true;
-}
-
 #define TIMER_SLOT(j, N) ((j >> (TVR_BITS + (N) * TVN_BITS)) & TVN_MASK)
 
 void WheelTimer2::addTimerNode(TimerNode* node)
@@ -89,12 +74,28 @@ int WheelTimer2::Schedule(uint32_t time_units, TimerCallback cb)
     auto node    = allocNode();
     node->cb     = cb;
     node->expire = jiffies_ + time_units;
+    if (node->id <= 0)
     node->id     = nextCounter();
     addTimerNode(node);
-    ref_.emplace(node->id, node);
-    //ref_[node->id] = node;
+    ref_.insert_unique(node->id, node);
     return node->id;
 }
+
+// Do lazy cancellation, so we can effectively use vector as container of timer nodes
+bool WheelTimer2::Cancel(int timer_id)
+{
+    const auto itnode = ref_.find(timer_id);
+    if (itnode == ref_.end())
+        return false;
+
+    auto node = itnode->second;
+    ref_.erase(itnode);
+    node->expire = 0;
+    node->id = INVALID_NODE_TIMERID;
+
+    return true;
+}
+
 
 // cascade all the timers at bucket of index up one level
 bool WheelTimer2::cascade(int bucket)

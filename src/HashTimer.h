@@ -6,8 +6,13 @@
 
 #include "TimerQueueBase.h"
 
+#if 0
 #define ehset emhash2::HashSet
 #include "hash_set2.hpp"
+#else
+#define ehset emhash3::HashSet
+#include "hash_set3.hpp"
+#endif
 
 // complexity:
 //      AddTimer   CancelTimer   PerTick

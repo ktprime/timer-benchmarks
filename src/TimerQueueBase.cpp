@@ -43,6 +43,7 @@ TimerQueueBase::TimerNode* TimerQueueBase::allocNode()
             alloc_list_.emplace_back(new TimerNode[alloc_size_]);
         }
         node = alloc_list_.back() + (--alloc_size_);
+        node->id = 0;
     }
     return node;
 }
