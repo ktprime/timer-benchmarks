@@ -38,7 +38,7 @@ int HashTimer::Schedule(uint32_t deadline_ms, TimerCallback cb)
     if (node->id <= 0)
         node->id = nextCounter();
 
-    if (node->id >= hash_.size()) 
+    if (node->id >= hash_.size())
         hash_.resize(node->id * 3 / 2);
 
     hash_[node->id] = node;
@@ -76,12 +76,12 @@ int HashTimer::tick(std::vector<TimerNode*>& run_info)
         auto& expire = node->expire;
         if (node->slot != TIMER_ID_INVALID - 3 || expire != jiffies_)
             continue;
-    
+
         node->slot = TIMER_ID_INVALID - 4;
         expire = TIMER_ID_INVALID;
         node->cb();
         fired++;
-	    freeNode(node);
+        freeNode(node);
     }
 
     run_info_.clear();
@@ -112,8 +112,8 @@ int HashTimer::NearTime(const int slots)
     int min_expire = jiffies_ + 1024;
     for (const auto& v : hash_) {
         auto expire = v->expire;
-	if (expire < min_expire && expire > 0)
-	    min_expire = expire;
+    if (expire < min_expire && expire > 0)
+        min_expire = expire;
     }
     return min_expire;
 }

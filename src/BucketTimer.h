@@ -6,7 +6,7 @@
 
 #include "TimerQueueBase.h"
 
-#if 1
+#if 0
 #define ehset emhash2::HashSet
 #include "hash_set2.hpp"
 #else

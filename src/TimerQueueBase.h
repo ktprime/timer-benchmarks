@@ -68,9 +68,21 @@ public:
     TimerNode* allocNode();
 protected:
     int nextCounter();
-
     int counter_ = 0;   // next timer id
     int alloc_size_  = 0;
     TimerList free_list_;
     TimerList alloc_list_;
 };
+
+#if 0
+    #include "small_vector.h"
+    typedef sbo::small_vector<TimerQueueBase::TimerNode*, 8> WheelList;
+#elif 1
+    #include "small_vector2.h"
+    typedef sv::small_vector<TimerQueueBase::TimerNode*, 8> WheelList;
+#elif 0
+    #include "SmallVector.h"
+    typedef llvm_vecsmall::SmallVector<TimerQueueBase::TimerNode*, 8> WheelList;
+#else
+    typedef std::vector<TimerQueueBase::TimerNode*> WheelList;
+#endif

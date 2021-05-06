@@ -6,8 +6,6 @@
 
 #include "TimerQueueBase.h"
 #include <vector>
-#include <list>
-#include <unordered_map>
 
 // timer queue implemented with hashed hierarchical wheel.
 //
@@ -26,10 +24,12 @@
 
 #ifndef WHEEL_BUCKETS
 #define WHEEL_BUCKETS 2
+using TimerNode = TimerQueueBase::TimerNode;
+
 enum TIME_WHEEL
 {
     TVN_BITS = 6,                   // time vector level shift bits
-    TVR_BITS = 8,                  // timer vector shift bits
+    TVR_BITS = 9,                   // timer vector shift bits
     TVN_SIZE = (1 << TVN_BITS),     // wheel slots of level vector
     TVR_SIZE = (1 << TVR_BITS),     // wheel slots of vector
     TVN_MASK = (TVN_SIZE - 1),      //
@@ -79,7 +79,8 @@ private:
 
 private:
     int64_t jiffies_ = 0;
-    HASH_MAP<int, TimerNode* > ref_;
-    TimerList near_[TVR_SIZE];
-    TimerList buckets_[WHEEL_BUCKETS][TVN_SIZE];
+    HASH_MAP<int, TimerNode*> ref_;
+    WheelList run_info_;
+    WheelList near_[TVR_SIZE];
+    WheelList buckets_[WHEEL_BUCKETS][TVN_SIZE];
 };

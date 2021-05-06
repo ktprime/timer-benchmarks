@@ -19,7 +19,7 @@ void WheelTimer::addTimerNode(TimerNode* node)
 {
     int64_t expires = node->expire;
     uint64_t idx = (uint64_t)(expires - jiffies_);
-    TimerList* list = nullptr;
+    WheelList* list = nullptr;
     if (idx < TVR_SIZE) // [0, 0x100)
     {
         int i = expires & TVR_MASK;
@@ -96,8 +96,7 @@ bool WheelTimer::cascade(int bucket, int index)
     if (bucket >= WHEEL_BUCKETS)
         return false;
 
-    TimerList list;
-    buckets_[bucket][index].swap(list);
+    WheelList list = std::move(buckets_[bucket][index]);
 
     for (auto node : list)
     {
@@ -132,11 +131,13 @@ int WheelTimer::tick()
 
 int WheelTimer::execute()
 {
-    int fired = 0;
     int index = jiffies_ & TVR_MASK;
-    TimerList expired;
-    near_[index].swap(expired); // swap list
-    for (auto node : expired)
+    if (near_[index].size() == 0)
+        return 0;
+
+    int fired = 0;
+    run_info_= std::move(near_[index]); // swap list
+    for (const auto node : run_info_)
     {
         if (node->slot >= 0)
         {
@@ -148,6 +149,8 @@ int WheelTimer::execute()
         ref_.erase(node->id);
         freeNode(node);
     }
+
+    run_info_.clear();
     return fired;
 }
 

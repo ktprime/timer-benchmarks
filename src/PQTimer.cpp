@@ -93,13 +93,15 @@ void PQTimer::Cancel(TimerNode* node)
     int i = node->slot;
     if (i != n)
     {
+        auto issmall = HEAP_ITEM_LESS(n, i);
         std::swap(heap_[i], heap_[n]);
         heap_[i]->slot = i;
-        if (!siftdown(i, n))
-        {
+
+        if (issmall)
+            siftdown(i, n);
+        else
             siftup(i);
         }
-    }
     heap_.pop_back();
     ref_.erase(node->id);
     freeNode(node);

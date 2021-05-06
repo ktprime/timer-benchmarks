@@ -32,25 +32,28 @@ algo   | Add()    | Cancel() | Tick()   | implement
 最小堆和红黑树的Cancel均使用for遍历找到id做删除，所以都是O(N)复杂度。
 
 ```
-AMD 1700 3.0GHz Ubu18.04 GCC 9.3 -O3
+AMD 1700 3.0GHz win10/Ubu18.04 GCC 9.3 -O3
 ============================================================================
-PQTimerAdd                                                  23.56ms    42.45
-TreeTimerAdd                                      78.96%    29.84ms    33.52
-BucketTimerAdd                                   111.48%    21.13ms    47.32
-WheelTimerAdd                                     1.19K%     1.98ms   505.20
-WheelTimer2Add                                    1.21K%     1.95ms   512.95
+PQTimerAdd                                                  49.31ms    20.28
+TreeTimerAdd                                      62.79%    78.52ms    12.74
+BucketTimerAdd                                   107.28%    45.96ms    21.76
+HashTimerAdd                                     107.31%    45.95ms    21.76
+WheelTimerAdd                                     1.14K%     4.31ms   232.08
+WheelTimer2Add                                    1.16K%     4.26ms   234.74
 ----------------------------------------------------------------------------
-PQTimerDel                                                   4.43ms   225.63
-TreeTimerDel                                      75.05%     5.91ms   169.34
-BucketTimerDel                                   132.09%     3.36ms   298.04
-WheelTimerDel                                    416.50%     1.06ms   939.76
-WheelTimer2Del                                   321.81%     1.38ms   726.11
+PQTimerDel                                                   6.86ms   145.78
+TreeTimerDel                                      28.01%    24.49ms    40.83
+BucketTimerDel                                    55.20%    12.43ms    80.47
+HashTimerDel                                     121.21%     5.66ms   176.70
+WheelTimerDel                                    256.46%     2.67ms   373.86
+WheelTimer2Del                                   194.96%     3.52ms   284.20
 ----------------------------------------------------------------------------
-PQTimerTick                                                 16.38ms    61.03
-TreeTimerTick                                     89.46%    18.32ms    54.60
-BucketTimerTick                                   98.03%    16.71ms    59.83
-WheelTimerTick                                    98.64%    16.61ms    60.20
-WheelTimer2Tick                                   98.47%    16.64ms    60.10
+PQTimerTick                                                 36.76ms    27.20
+TreeTimerTick                                     80.13%    45.88ms    21.80
+BucketTimerTick                                   96.16%    38.23ms    26.16
+HashTimerTick                                     98.35%    37.38ms    26.75
+WheelTimerTick                                   103.57%    35.50ms    28.17
+WheelTimer2Tick                                  102.47%    35.88ms    27.87
 ============================================================================
 ```
 

@@ -20,7 +20,7 @@ void WheelTimer2::addTimerNode(TimerNode* node)
     //node->slot   = INVALID_NODE_SLOTID;
     auto expires = node->expire;
     const uint64_t idx = (uint64_t)(expires - jiffies_);
-    TimerList* list;
+    WheelList* list;
     if (idx < TVR_SIZE) // [0, 0x100)
     {
         int i = expires & TVR_MASK;
@@ -66,7 +66,7 @@ void WheelTimer2::addTimerNode(TimerNode* node)
         list = &buckets_[slots][i];
     }
     // add to linked list
-    list->emplace_back(node);
+    list->push_back(node);
 }
 
 int WheelTimer2::Schedule(uint32_t time_units, TimerCallback cb)
@@ -104,7 +104,7 @@ bool WheelTimer2::cascade(int bucket)
         return false;
 
     const int index = TIMER_SLOT(jiffies_, bucket);
-    TimerList list = std::move(buckets_[bucket][index]);
+    WheelList list = std::move(buckets_[bucket][index]);
     for (auto node : list)
     {
         if (node->id == INVALID_NODE_TIMERID)
@@ -123,9 +123,9 @@ int WheelTimer2::execute()
         return 0;
 
     int fired = 0;
-    TimerList expired = std::move(near);
+    run_info_ = std::move(near);
 
-    for (auto node : expired)
+    for (auto node : run_info_)
     {
         if (1 == ref_.erase(node->id)) {//erase it then call Run, it can be removed by Cancel in Run Callback
             node->cb(); fired ++;
@@ -133,6 +133,7 @@ int WheelTimer2::execute()
         freeNode(node);
     }
 
+    run_info_.clear();
     return fired;
 }
 
