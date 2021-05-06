@@ -34,6 +34,8 @@ option(BENCHMARK_DOWNLOAD_DEPENDENCIES "Allow the downloading and in-tree buildi
 # in cases where it is not possible to build or find a valid version of gtest.
 option(BENCHMARK_ENABLE_GTEST_TESTS "Enable building the unit tests which depend on gtest" ON)
 
+option(BENCHMARK_ENABLE_LIBPFM "Enable performance counters provided by libpfm" OFF)
+
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(ENABLE_ASSEMBLY_TESTS_DEFAULT OFF)
 function(should_enable_assembly_tests)
@@ -269,6 +271,10 @@ cxx_feature_check(STEADY_CLOCK)
 # Ensure we have pthreads
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+
+if (BENCHMARK_ENABLE_LIBPFM)
+  find_package(PFM)  
+endif()
 
 # Set up directories
 include_directories(${PROJECT_SOURCE_DIR}/include)

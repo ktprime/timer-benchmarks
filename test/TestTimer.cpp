@@ -16,7 +16,7 @@
 #include "Clock.h"
 #include "Benchmark.h"
 
-const int N1 = 10000;
+const int N1 = 100000;
 const int N2 = 10;
 const int TRY = 2;
 const int TIME_DELTA = 10;
@@ -120,7 +120,7 @@ static void TestTimerExpire(TimerQueueBase* timer, int count)
     printf("average tolerance: %f\n", (double)sum / (double)interval_tolerance.size());
 }
 
-TEST(TimerQueue, MinHeapTimerAdd)
+TEST(TimerQueue, PQTimerAdd)
 {
     PQTimer timer;
     for (int i = 0; i < TRY; i++)
@@ -174,7 +174,7 @@ TEST(TimerQueue, HashTimerAdd)
     }
 }
 
-TEST(TimerQueue, HeapTimerExecute)
+TEST(TimerQueue, PQTimerExecute)
 {
     PQTimer timer;
     TestTimerExpire(&timer, N2);
@@ -197,7 +197,6 @@ TEST(TimerQueue, WheelTimer2Execute)
     WheelTimer2 timer;
     TestTimerExpire(&timer, N2);
 }
-
 
 TEST(TimerQueue, BucketTimerExecute)
 {

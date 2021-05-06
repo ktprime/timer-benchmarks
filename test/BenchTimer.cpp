@@ -2,6 +2,7 @@
 // Distributed under the terms and conditions of the Apache License.
 // See accompanying files LICENSE.
 
+#include <random>
 #include "Benchmark.h"
 #include <algorithm>
 #include "PQTimer.h"
@@ -12,18 +13,20 @@
 #include "HashTimer.h"
 #include "Clock.h"
 
-
-constexpr int MaxN = 100'005/1;   // max node count
+constexpr int MaxN = 400'005/1;   // max node count
 
 // Add timer with random duration
 inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
 {
+    std::random_device rd;
+    std::mt19937 g(rd());
     std::vector<int> durations;
+    durations.reserve(n);
+    ids.reserve(n);
     for (int i = 0; i < n; i++)
-    {
-        durations.push_back(i + rand() % 8);
-    }
-    std::random_shuffle(durations.begin(), durations.end());
+        durations.push_back(i + g() % 8);
+
+    std::shuffle(durations.begin(), durations.end(), g);
     auto dummy = []() {};
     for (int i = 0; i < (int)durations.size(); i++)
     {
@@ -35,7 +38,12 @@ inline void fillTimer(TimerQueueBase* timer, std::vector<int>& ids, int n)
 // Cancel timers with random timer id
 inline void benchCancel(TimerQueueBase* timer, std::vector<int>& ids)
 {
+#if 0
     std::random_shuffle(ids.begin(), ids.end());
+#else
+    std::random_device rd; std::mt19937 g(rd());
+    std::shuffle(ids.begin(), ids.end(), g);
+#endif
     for (int i = 0; i < (int)ids.size(); i++)
     {
         timer->Cancel(ids[i]);

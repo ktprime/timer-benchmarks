@@ -80,7 +80,7 @@ protected:
 #elif 1
     #include "small_vector2.h"
     typedef sv::small_vector<TimerQueueBase::TimerNode*, 8> WheelList;
-#elif 0
+#elif 1
     #include "SmallVector.h"
     typedef llvm_vecsmall::SmallVector<TimerQueueBase::TimerNode*, 8> WheelList;
 #else
